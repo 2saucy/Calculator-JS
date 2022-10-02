@@ -1,69 +1,67 @@
-// keys
 const numbers = document.querySelectorAll('.number');
-const operands = document.querySelectorAll('.operand');
+const operators = document.querySelectorAll('.operator');
 const positiveOrNegative = document.querySelector('.pos-o-neg');
-
-// display
+const ac = document.querySelector('.AC');
+const point = document.querySelector('.point');
 const display = document.querySelector('.display-txt');
+const equal = document.querySelector('equal'); // still with no use...
 
-//variables
-let resetDisplay = false;
-
-let currentOperand = '';
+// global variables
+let resetDis = false;
+let currentOperator = '';
 let firstNumber = 0;
 let secondNumber = 0;
 
-//instrucciones al presionar un numero
-// mostrar el numero o los numeros presionado/os en el display
-// almacenarlo en una variable
-// resetear display despues de un operando
-// repetir 1,2 y3
-// mostrar resultado
+ac.addEventListener('click', AllClear);
+point.addEventListener('click', addPoint);
+positiveOrNegative.addEventListener('click', PlusOrMinus);
 
-
-operands.forEach((operand) => {
-    operand.addEventListener('click', (e) => {
-        pressOperand(operand);
-    });
+operators.forEach((operator) => {
+    operator.addEventListener('click', () => pressOperator(operator));
 });
-
 numbers.forEach((number) => {
-    number.addEventListener('click', (e) => {
-        pressNumbers(number);
-    });
+    number.addEventListener('click', () => pressNumbers(number));
 });
-
-function pressOperand(operand) {
-    if (currentOperand == '') {
+function pressOperator(op) {
+    if (currentOperator == '') {
         firstNumber = display.textContent;
-        currentOperand = operand.textContent;
-        resetDisplay = true;
+        currentOperator = op.textContent;
+        resetDis = true;
     }
-    else if (currentOperand != '') {
-        equal();
-        
+    else if (currentOperator != '') {
+        secondNumber = display.textContent;
+        firstNumber = result();
+        currentOperator = '';
+        secondNumber = 0;
     }
 }
-function pressNumbers(number) {
-    if (display.textContent == '0') {
-        display.textContent = number.textContent
-    }
-    else if (resetDisplay == true) {
-        display.textContent = number.textContent;
-        resetDisplay = false
+function pressNumbers(num) {
+    if (display.textContent == '0' || resetDis) {
+        resetDisplay();
+        display.textContent = num.textContent
     }
     else {
-        display.textContent += number.textContent;
+        display.textContent += num.textContent;
     }
 }
-
-function equal() {
-    secondNumber = display.textContent;
-    console.log(currentOperand, firstNumber, secondNumber);
-    result = operate(currentOperand, parseInt(firstNumber), parseInt(secondNumber));
-    display.textContent = result;
+function result(oprand) {
+    // if both numbers (strings) are int then parse int them. if not parse float.
+    if (Number.isInteger(firstNumber) && Number.isInteger(secondNumber)) {
+        product = operate(currentOperator, parseInt(firstNumber), parseInt(secondNumber));
+    }
+    else {
+        product = operate(currentOperator, parseFloat(firstNumber), parseFloat(secondNumber));
+        product = Number(product.toFixed(2));
+    }
+    // display on screen the product of the operation
+    display.textContent = product
+    return product
 }
-
+// set the display an empty string and then change the value of resetDis back to false
+function resetDisplay() {
+    display.textContent = '';
+    resetDis = false;
+}
 // adds a negative or remove a negative depends of the current value
 function PlusOrMinus() {
     if (display.textContent.includes('-')) {
@@ -72,7 +70,6 @@ function PlusOrMinus() {
         display.textContent = '-' + display.textContent;
     }
 }
-
 // function that add a single point.
 function addPoint() {
     if (display.textContent.includes('.')) {
@@ -82,39 +79,38 @@ function addPoint() {
         display.textContent += '.';
     }
 }
-
-// clear display back to 0
-function clearAll() {
+// clear display back to 0 and set default value to all global variables
+function AllClear() {
     display.textContent = 0;
+    firstNumber = 0;
+    secondNumber = 0;
+    resetDis = false;
+    currentOperator = '';
 }
-
 // operation methods
-function add(num_1, num_2) {
-    return num_1 + num_2;
+function add(numOne, numTwo) {
+    return numOne + numTwo;
 }
-function substract(num_1, num_2) {
-    return num_1 - num_2;
+function substract(numOne, numTwo) {
+    return numOne - numTwo;
 }
-function multiply(num_1, num_2) {
-    return num_1 * num_2;
+function multiply(numOne, numTwo) {
+    return numOne * numTwo;
 }
-function divide(num_1, num_2) {
-    return num_1 / num_2;
+function divide(numOne, numTwo) {
+    return numOne / numTwo;
 }
-function operate(operator, num_1, num_2) {
-    let result = 0;
-
-    if (operator == '+') {
-        result = add(num_1, num_2);
+function operate(operator, numOne, numTwo) {
+    switch (operator) {
+        case '+':
+            return add(numOne, numTwo);
+        case '-':
+            return substract(numOne, numTwo);
+        case '*':
+            return multiply(numOne, numTwo);
+        case '/':
+            return divide(numOne, numTwo);
+        default:
+            return 'ERROR';
     }
-    else if (operator == '-') {
-        result = substract(num_1, num_2);
-    }
-    else if (operator == 'x') {
-        result = multiply(num_1, num_2);
-    }
-    else {
-        result = divide(num_1, num_2);
-    }
-    return result;
 }
